@@ -7,6 +7,7 @@ You will also be able to reproduce the presented solutions and solve additional 
 
 If you want to fully participate in the hands-on part, you need the following packages (CRAN versions are ok)
 
+```
 library("DALEX")
 library("ranger")
 library("rpart")
@@ -22,6 +23,7 @@ library("gam")
 library("e1071")
 library("earth") 
 library("magrittr")
+```
 
 On the day of the workshop, all materials can be found at.
 https://tinyurl.com/RML2021
