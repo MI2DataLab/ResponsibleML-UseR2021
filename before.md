@@ -16,6 +16,8 @@ library("ggplot2")
 library("modelStudio")
 library("arenar")
 
+library("fairmodels")
+
 library("tidyr")
 library("mlr3")
 library("gbm")
