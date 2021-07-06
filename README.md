@@ -15,8 +15,8 @@ Short link to this page: [https://tinyurl.com/RML2021](https://tinyurl.com/RML20
 
 Please, note that these are artificial datasets generated to mimic relations present in the real data.
 
-* [covid_spring.csv](covid_spring.csv)
-* [covid_summer.csv](covid_summer.csv)
+* [covid_spring.csv](data/covid_spring.csv)
+* [covid_summer.csv](data/covid_summer.csv)
 
 ## Other workshops
 

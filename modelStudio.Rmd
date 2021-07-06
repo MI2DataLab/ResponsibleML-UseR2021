@@ -1,0 +1,170 @@
+---
+title: "How to automate the model analysis?"
+author: "Hubert Baniecki"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    number_sections: true
+    theme: flatly
+    highlight: kate
+---
+
+<!-- STYLES FOR modelStudio -->
+<style type="text/css">
+<!-- .main-container { -->
+<!--   max-width: 1200px; -->
+<!-- } -->
+.r2d3 {
+  position: relative !important;
+  left: -130px !important;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+#user {
+  left: -430px !important;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# DALEX
+
+**Load packages.**
+
+```{r warning = FALSE, message = FALSE, results='hide'}
+# machine learning
+library("DALEX")
+library("ranger")
+
+# visualization 
+library("patchwork")
+library("ggplot2")
+```
+
+**Happiness data.**
+
+```{r}
+# load data
+train <- read.csv("data/happiness_train.csv", row.names = 1)
+test <- read.csv("data/happiness_test.csv",  row.names = 1)
+knitr::kable(rbind(head(test), tail(test)))
+```
+
+**Explain a black-box model.**
+
+```{r}
+# fit a model
+model_rf <- ranger(score~., data = train)
+
+# create an explainer for the model
+explainer_rf <- explain(model_rf,
+                        data = test[,-1],
+                        y = test$score,
+                        colorize = FALSE)
+```
+
+```{r fig.height = 8, fig.width = 9}
+(plot(model_parts(explainer_rf), subtitle="")) /
+  (plot(model_profile(explainer_rf), subtitle="") +
+    theme(axis.title.y = element_text(vjust = -40))) +
+  plot_layout(heights = c(1, 2))
+
+obs <- test[1,]
+pp <- predict_parts(explainer_rf, obs)
+pp$label <- rownames(obs)
+(plot(pp, subtitle="")) /
+  (plot(predict_profile(explainer_rf, obs), subtitle="") +
+    theme(axis.title.y = element_text(vjust = -50))) +
+  plot_layout(heights = c(1, 2))
+```
+
+# modelStudio
+
+Just one line of code...
+
+```{r warning = FALSE, message = FALSE}
+library("modelStudio")
+modelStudio(explainer_rf,
+            options = ms_options(margin_left = 150))
+```
+
+## parameters 
+
+Exploring the parameters based on the [vignette](https://modelstudio.drwhy.ai/articles/ms-perks-features.html) and [documentation](https://modelstudio.drwhy.ai/reference/modelStudio.html).
+
+**Observations for local explanations**
+
+```{r eval=FALSE}
+new_observation <- test[c('Canada', 'Chile', 'China'), ]
+
+modelStudio(explainer_rf,
+            new_observation = new_observation,
+            new_observation_y = new_observation$score)
+
+modelStudio(explainer_rf,
+            new_observation_n = 10)
+```
+
+**Smaller studio**
+
+```{r warning = FALSE, message = FALSE}
+modelStudio(explainer_rf,
+            facet_dim = c(1, 2),
+            options = ms_options(margin_left = 150))
+```
+
+**"I have a huge monitor!" **
+
+```{r warning = FALSE, message = FALSE}
+modelStudio(explainer_rf,
+            facet_dim = c(2, 3),
+            widget_id = "user",
+            options = ms_options(margin_left = 150))
+```
+
+**Longer computation for more accurate results**
+
+```{r eval=FALSE}
+modelStudio(explainer_rf,
+            N = 300,
+            N_fi = 3000,
+            B = 15,
+            B_fi = 25)
+```
+
+## `ms_options`
+
+```{r warning = FALSE, message = FALSE}
+modelStudio(explainer_rf,
+            max_vars = 4,
+            time = 100,
+            eda = FALSE,
+            options = ms_options(
+              margin_left = 150,
+              ms_title = "modelStudio on useR!-21",
+              ms_subtitle = "https://tinyurl.com/RML2021",
+              line_size = 4,
+              cp_point_size = 6,
+              positive_color = "#ffa58c",
+              negative_color = "#ae2c87"
+            ))
+```
+
+## `ms_update_observations()` &  `ms_update_options()`
+
+```{r warning = FALSE, message = FALSE}
+ms <- modelStudio(explainer_rf)
+ms_updated <- ms_update_observations(ms, explainer_rf, test[1:3, ])
+ms_updated_again <- ms_update_options(ms_updated, facet_dim = c(1, 2), margin_left = 150)
+ms_updated_again
+```
