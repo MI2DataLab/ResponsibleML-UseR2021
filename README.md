@@ -8,8 +8,13 @@ Short link to this page: [https://tinyurl.com/RML2021](https://tinyurl.com/RML20
 
 ## Materials 
 
-* Slides pdf
-* R scripts Rmd
+* Intro, [pdf](intro.pdf)
+* Part 1: Models+XAI, pdf
+* Part 1: Models+XAI, R scripts html
+* Part 1: Models+XAI, R scripts Rmd
+* Part 2: Fairness, [pdf](fairmodels.pdf), [R](fairmodels.R)
+* Part 3: modelStudio+Arena, [modelStudio html](modelStudio.html),[modelStudio Rmd](modelStudio.Rmd), [Arena R](Arena.R)
+
 
 ## Data
 
