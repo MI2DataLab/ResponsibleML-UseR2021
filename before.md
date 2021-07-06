@@ -24,6 +24,9 @@ library("e1071")
 library("earth") 
 library("magrittr")
 library("patchwork")
+
+library("ingredients")
+library("iBreakDown")
 ```
 
 On the day of the workshop, all materials can be found at.
