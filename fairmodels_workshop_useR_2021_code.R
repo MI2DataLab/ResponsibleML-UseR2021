@@ -30,10 +30,6 @@ df <- df[ -c(4:5, 13:14)]
 
 head(df)
 
-ggplot(df[c('race', 'decile_score')],
-       aes(x=decile_score)) + geom_bar() + facet_grid(~race)
-
-
 # Here we change the order of the recidivism, so that the model
 # predicts positive outcome
 df$two_year_recid <- ifelse(df$two_year_recid == 1, 0, 1)
@@ -46,6 +42,7 @@ df$two_year_recid <- ifelse(df$two_year_recid == 1, 0, 1)
 lr_model <- glm(two_year_recid ~.,
                 data = df,
                 family = binomial())
+
 lr_explainer <- DALEX::explain(lr_model, data = df, y = df$two_year_recid)
 
 # lets check the performance
@@ -88,6 +85,7 @@ fobject <- fairness_check(lr_explainer,
                           privileged = 'Caucasian')
 
 plot(fobject)
+### How to read it?
 
 # what happens if i tweak this?
 fobject <- fairness_check(lr_explainer,
@@ -105,7 +103,6 @@ plot(fobject)
 
 ################# More Models #################
 
-head(df)
 rf_model <- ranger::ranger(as.factor(two_year_recid) ~.,
                            data=df,
                            probability = TRUE,
@@ -135,7 +132,6 @@ fobject2 <- fairness_check(rf_explainer,
 
 fobject2 <- fairness_check(fobject, fobject2)
 
-plot(fobject2)
 
 # 3. 2 explainers
 fobject2 <- fairness_check(rf_explainer, lr_explainer,
@@ -191,7 +187,7 @@ fobject3 %>% fairness_radar() %>% plot()
 
 ?fairness_radar
 
-fobject3 %>% fairness_radar(fairness_metrics = c("TPR", "STP", "FPR")) %>%
+fobject3 %>% fairness_radar(fairness_metrics = c("TPR", "STP", "FNR")) %>%
   plot()
 
 # all metrics?
@@ -210,7 +206,6 @@ fobject3 %>%
   plot()
 
 # hard to remember? No problem!
-
 ?plot_fairmodels()
 
 fobject3 %>% plot_fairmodels("stack_metrics")
@@ -272,13 +267,13 @@ plot(fobject)
 ##### Post-Processing
 
 # ROC pivot
-rf_explainer_roc <- roc_pivot(rf_explainer,
-                              df$race,
-                              "Caucasian",
+rf_explainer_roc2 <- roc_pivot(rf_explainer_reweighted,
+                              protected =  df$race,
+                              privileged = "Caucasian",
                               theta = 0.05)
 
 
-fobject <- fairness_check(fobject, rf_explainer_roc, label = "roc")
+fobject <- fairness_check(fobject, rf_explainer_roc2, label = "roc2")
 
 plot(fobject)
 
@@ -297,7 +292,8 @@ fobject <- fairness_check(fobject, rf_explainer,
 plot(fobject)
 
 # checking FPR and accuracy
-fobject %>% performance_and_fairness(fairness_metric = 'FPR', performance_metric = 'accuracy') %>% plot()
+fobject %>% performance_and_fairness(fairness_metric = 'FPR',
+                                     performance_metric = 'accuracy') %>% plot()
 
 ################# Exercise #################
 
@@ -344,8 +340,6 @@ fobject_reg <- fairness_check_regression(rf_reg_explainer,
                                          privileged = "Caucasian")
 
 plot(fobject_reg)
-
-# How we interpret that?
 
 
 
