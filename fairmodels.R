@@ -7,6 +7,8 @@ library(fairmodels)
 library(gbm)
 library(ranger)
 
+################# data #################
+
 head(fairmodels::compas)
 
 compas2 <- read.csv('https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv')
@@ -139,7 +141,7 @@ fobject2 <- fairness_check(rf_explainer, lr_explainer,
                            privileged = "Caucasian")
 
 plot(fobject2)
-
+fobject2
 # more than 2 is ok.
 
 # what if the race in the data is the case?
@@ -267,7 +269,7 @@ plot(fobject)
 ##### Post-Processing
 
 # ROC pivot
-rf_explainer_roc2 <- roc_pivot(rf_explainer_reweighted,
+rf_explainer_roc2 <- roc_pivot(rf_explainer,
                               protected =  df$race,
                               privileged = "Caucasian",
                               theta = 0.05)
@@ -302,6 +304,15 @@ fobject %>% performance_and_fairness(fairness_metric = 'FPR',
 # Add to this a linear model (lr) and plot ceteris peribus cutoff
 # for subgroup male
 
+# SOLUTION
+
+fc <- fairness_check(rf_explainer, protected = df$sex, privileged = "Female")
+plot(fc)
+
+fc <- fairness_check(fc, lr_explainer)
+plot(fc)
+
+fc %>% ceteris_paribus_cutoff("Male") %>% plot()
 
 ################# Regression Module #################
 
@@ -316,7 +327,7 @@ ggplot(df[c('race', 'decile_score')], aes(x=decile_score)) +
 
 # lets build a model to predict such scores decile scores
 
-df_reg <- df[, ! colnames(df)  %in% c('two_year_recid', 'v_decile_score')]
+df_reg <- df[, ! colnames(df) %in% c('two_year_recid', 'v_decile_score')]
 head(df_reg)
 
 
