@@ -1,6 +1,6 @@
 # Introduction to Responsible ML
 
-Notes for the tutorial given at [UseR!2021](https://user2021.r-project.org/program/tutorials/). 
+Notes for the tutorial given at [UseR!2021](https://user2021.r-project.org/program/tutorials/). The video is available [on YouTube](https://www.youtube.com/watch?v=VaWmTDF3nQc).
 
 ## Short link
 
